@@ -92,10 +92,23 @@
 
       <!-- Riwayat Transaksi -->
       <div class="pt-4 border-t border-gray-200">
-        <div class="flex justify-between items-center mb-3">
+        <div class="flex justify-between items-center mb-2">
           <h2 class="text-sm font-bold text-blue-900 uppercase tracking-wider">Riwayat Transaksi</h2>
           <span class="text-[10px] text-gray-400">(Tekan ✕ untuk menghapus)</span>
         </div>
+        
+        <!-- Legend Warna -->
+        <div class="flex items-center gap-4 mb-3 text-xs font-medium text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span>
+            <span>Helmy (Biru)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-pink-500 inline-block"></span>
+            <span>Era (Pink)</span>
+          </div>
+        </div>
+
         <ul id="daftarTransaksi" class="space-y-3 max-h-60 overflow-y-auto text-sm pr-1">
           <li class="text-center text-gray-400 py-4 font-medium">Belum ada transaksi</li>
         </ul>
@@ -240,6 +253,7 @@
 
       listItems.reverse().forEach((item) => {
         const isPemasukan = item.jenis === "pemasukan";
+        const isHelmy = item.pencatat === "Helmy";
 
         if (isPemasukan) saldoUtama += item.nominal;
         else saldoUtama -= item.nominal;
@@ -251,8 +265,14 @@
         }
 
         const li = document.createElement("li");
+        
+        // Warna seluruh kartu menyesuaikan siapa yang mencatat:
+        // Helmy -> Latar Biru, Border Biru
+        // Era -> Latar Pink, Border Pink
         li.className = `p-3 rounded-lg border-l-4 flex justify-between items-center shadow-sm ${
-          isPemasukan ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
+          isHelmy 
+            ? "border-blue-600 bg-blue-50/80" 
+            : "border-pink-500 bg-pink-50/80"
         }`;
 
         const keyParam = item.keyFirebase ? `'${item.keyFirebase}'` : "null";
@@ -260,10 +280,16 @@
 
         li.innerHTML = `
           <div class="flex-1 pr-2">
-            <p class="font-bold text-gray-800">${item.keterangan}</p>
-            <p class="text-[11px] text-gray-500 mt-0.5 font-medium">
-              <span class="${item.pencatat === 'Helmy' ? 'text-blue-700' : 'text-pink-600'}">${item.pencatat}</span> 
-              • ${item.waktu}
+            <div class="flex items-center gap-2 mb-0.5">
+              <p class="font-bold text-gray-800">${item.keterangan}</p>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                isHelmy ? 'bg-blue-200 text-blue-900' : 'bg-pink-200 text-pink-900'
+              }">
+                ${item.pencatat}
+              </span>
+            </div>
+            <p class="text-[11px] text-gray-500 font-medium">
+              ${item.waktu}
             </p>
           </div>
           <div class="flex items-center gap-2">
