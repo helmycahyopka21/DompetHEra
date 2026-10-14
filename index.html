@@ -9,46 +9,84 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
-<body class="bg-blue-50 text-gray-800 p-4 min-h-screen font-sans flex items-center justify-center">
-  
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-blue-100">
+<body class="bg-blue-50 text-gray-800 min-h-screen font-sans flex items-center justify-center p-4">
+
+  <!-- ================= HALAMAN LOGIN ================= -->
+  <div id="halamanLogin" class="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-blue-100 p-8 text-center transition-all duration-300">
+    <div class="mb-6">
+      <h1 class="text-3xl font-extrabold text-blue-900 tracking-wide mb-2">HEra</h1>
+      <p class="text-gray-500 text-sm">Catatan Keuangan Keluarga</p>
+    </div>
     
-    <!-- Header Aplikasi (Biru Tua) -->
-    <div class="bg-blue-900 p-5 text-center shadow-md">
-      <h1 class="text-2xl font-extrabold text-white tracking-wide">Dompet Keluarga HEra</h1>
-      <p class="text-blue-200 text-sm mt-1 font-medium">(Helmy & Era)</p>
+    <form id="formLogin" class="space-y-4">
+      <div>
+        <input type="password" id="passwordInput" placeholder="Masukkan PIN / Password" class="w-full border-2 border-blue-100 p-3 rounded-lg text-center font-bold text-blue-900 focus:outline-none focus:border-blue-900 focus:ring-1 focus:ring-blue-900 transition-colors" required>
+      </div>
+      <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3 rounded-lg text-sm hover:bg-blue-950 transition-colors shadow-md">
+        BUKA DOMPET
+      </button>
+      <p id="pesanError" class="text-red-500 text-xs mt-2 hidden">Password salah! Silakan coba lagi.</p>
+    </form>
+  </div>
+
+
+  <!-- ================= HALAMAN UTAMA APLIKASI ================= -->
+  <div id="halamanUtama" class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-blue-100 hidden transition-all duration-300">
+    
+    <!-- Header Aplikasi -->
+    <div class="bg-blue-900 p-5 flex justify-between items-center shadow-md">
+      <div>
+        <h1 class="text-xl font-extrabold text-white tracking-wide">Dompet HEra</h1>
+        <p class="text-blue-200 text-xs mt-1 font-medium">(Helmy & Era)</p>
+      </div>
+      <button onclick="logout()" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600 font-bold">Keluar</button>
     </div>
 
     <div class="p-6 space-y-6">
-      <!-- Ringkasan Saldo -->
-      <div class="bg-gradient-to-r from-blue-900 to-blue-800 p-5 rounded-xl text-center shadow-lg transform transition hover:scale-105">
+      
+      <!-- Ringkasan Saldo Utama -->
+      <div class="bg-gradient-to-r from-blue-900 to-blue-800 p-5 rounded-xl text-center shadow-lg">
         <p class="text-sm text-blue-200 mb-1 font-medium">Total Saldo Saat Ini</p>
         <p id="totalSaldo" class="text-3xl font-extrabold text-white">Rp 0</p>
       </div>
 
+      <!-- Rekap Harian (Hari Ini) -->
+      <div class="flex gap-4">
+        <div class="flex-1 bg-green-50 border border-green-100 p-3 rounded-lg text-center">
+          <p class="text-[10px] font-bold text-green-700 uppercase">Masuk Hari Ini</p>
+          <p id="masukHariIni" class="text-sm font-extrabold text-green-600 mt-1">Rp 0</p>
+        </div>
+        <div class="flex-1 bg-red-50 border border-red-100 p-3 rounded-lg text-center">
+          <p class="text-[10px] font-bold text-red-700 uppercase">Keluar Hari Ini</p>
+          <p id="keluarHariIni" class="text-sm font-extrabold text-red-600 mt-1">Rp 0</p>
+        </div>
+      </div>
+
       <!-- Form Transaksi -->
       <form id="formTransaksi" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Pencatat</label>
-          <select id="pencatat" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900 focus:ring-1 focus:ring-blue-900 transition-colors" required>
-            <option value="Helmy">Helmy</option>
-            <option value="Era">Era</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Jenis Transaksi</label>
-          <select id="jenis" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900 focus:ring-1 focus:ring-blue-900 transition-colors" required>
-            <option value="pengeluaran">Pengeluaran (-)</option>
-            <option value="pemasukan">Pemasukan (+)</option>
-          </select>
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Pencatat</label>
+            <select id="pencatat" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900" required>
+              <option value="Helmy">Helmy</option>
+              <option value="Era">Era</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Jenis</label>
+            <select id="jenis" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900" required>
+              <option value="pengeluaran">Keluar (-)</option>
+              <option value="pemasukan">Masuk (+)</option>
+            </select>
+          </div>
         </div>
         <div>
           <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Nominal (Rp)</label>
-          <input type="number" id="nominal" placeholder="Contoh: 50000" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900 focus:ring-1 focus:ring-blue-900 transition-colors" required>
+          <input type="number" id="nominal" placeholder="Contoh: 50000" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900" required>
         </div>
         <div>
           <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Keterangan</label>
-          <input type="text" id="keterangan" placeholder="Contoh: Beli pulsa / Gaji bulanan" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900 focus:ring-1 focus:ring-blue-900 transition-colors" required>
+          <input type="text" id="keterangan" placeholder="Contoh: Beli token listrik" class="w-full border-2 border-blue-100 p-2.5 rounded-lg text-sm bg-blue-50 focus:outline-none focus:border-blue-900" required>
         </div>
         <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3 rounded-lg text-sm hover:bg-blue-950 transition-colors shadow-md">
           SIMPAN TRANSAKSI
@@ -66,7 +104,33 @@
   </div>
 
   <script>
-    // 1. TEMPELKAN KODE KONFIGURASI FIREBASE ANDA DI SINI NANTI
+    // ================= PENGATURAN PASSWORD =================
+    // GANTI "hera123" dengan password yang Anda inginkan
+    const KATA_SANDI_APP = "hera123"; 
+
+    // Logika Login
+    document.getElementById("formLogin").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const inputPass = document.getElementById("passwordInput").value;
+      
+      if(inputPass === KATA_SANDI_APP) {
+        document.getElementById("halamanLogin").classList.add("hidden");
+        document.getElementById("halamanUtama").classList.remove("hidden");
+        document.getElementById("passwordInput").value = ""; // bersihkan input
+        document.getElementById("pesanError").classList.add("hidden");
+      } else {
+        document.getElementById("pesanError").classList.remove("hidden");
+      }
+    });
+
+    // Logika Logout
+    function logout() {
+      document.getElementById("halamanUtama").classList.add("hidden");
+      document.getElementById("halamanLogin").classList.remove("hidden");
+    }
+
+    // ================= KONFIGURASI FIREBASE =================
+    // TEMPELKAN KODE KONFIGURASI FIREBASE ANDA DI SINI
     const firebaseConfig = {
       apiKey: "PASTE_API_KEY_ANDA_DI_SINI",
       authDomain: "PROJECT_ANDA.firebaseapp.com",
@@ -77,10 +141,9 @@
       appId: "APP_ID_ANDA"
     };
 
-    // Inisialisasi Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const transRef = db.ref("transaksi_hera"); // Nama referensi database juga disesuaikan
+    const transRef = db.ref("transaksi_hera");
 
     // Simpan Transaksi ke Firebase
     document.getElementById("formTransaksi").addEventListener("submit", (e) => {
@@ -90,31 +153,38 @@
       const nominal = parseInt(document.getElementById("nominal").value);
       const keterangan = document.getElementById("keterangan").value;
 
-      // Ambil waktu saat ini
       const sekarang = new Date();
-      const opsiWaktu = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-      const waktuFormat = sekarang.toLocaleDateString("id-ID", opsiWaktu);
+      const opsiTanggal = { day: '2-digit', month: 'short', year: 'numeric' };
+      const tanggalFormat = sekarang.toLocaleDateString("id-ID", opsiTanggal);
+      const opsiWaktu = { hour: '2-digit', minute: '2-digit' };
+      const jamFormat = sekarang.toLocaleTimeString("id-ID", opsiWaktu);
 
+      // Format disimpan: "14 Okt 2026, 22:30"
       transRef.push({
         pencatat: pencatat,
         jenis: jenis,
         nominal: nominal,
         keterangan: keterangan,
-        waktu: waktuFormat
+        waktu: `${tanggalFormat}, ${jamFormat}`,
+        tanggalReal: tanggalFormat // Disimpan terpisah untuk memudahkan filter rekap harian
       });
 
-      // Kosongkan form setelah tersimpan (kecuali nama pencatat)
       document.getElementById("nominal").value = "";
       document.getElementById("keterangan").value = "";
     });
 
-    // Baca Data Real-Time
+    // Baca Data Real-Time & Hitung Rekap
     transRef.on("value", (snapshot) => {
       const data = snapshot.val();
       const daftarElement = document.getElementById("daftarTransaksi");
       daftarElement.innerHTML = "";
 
-      let saldo = 0;
+      let saldoUtama = 0;
+      let totalMasukHariIni = 0;
+      let totalKeluarHariIni = 0;
+
+      // Ambil tanggal hari ini di perangkat untuk perbandingan rekap
+      const tanggalHariIni = new Date().toLocaleDateString("id-ID", { day: '2-digit', month: 'short', year: 'numeric' });
 
       if (!data) {
         daftarElement.innerHTML = '<li class="text-center text-gray-400 py-4 font-medium">Belum ada transaksi</li>';
@@ -122,19 +192,24 @@
         return;
       }
 
-      // Membalik urutan agar yang terbaru ada di atas
       Object.keys(data).reverse().forEach((key) => {
         const item = data[key];
         const isPemasukan = item.jenis === "pemasukan";
         
-        if (isPemasukan) {
-          saldo += item.nominal;
-        } else {
-          saldo -= item.nominal;
+        // 1. Hitung Saldo Utama
+        if (isPemasukan) saldoUtama += item.nominal;
+        else saldoUtama -= item.nominal;
+
+        // 2. Hitung Rekap Hari Ini
+        // Menggunakan tanggalReal (untuk data baru) atau memotong string waktu (untuk kompatibilitas data lama)
+        const tanggalItem = item.tanggalReal || item.waktu.split(",")[0].trim();
+        if (tanggalItem === tanggalHariIni) {
+          if (isPemasukan) totalMasukHariIni += item.nominal;
+          else totalKeluarHariIni += item.nominal;
         }
 
+        // 3. Tampilkan Riwayat
         const li = document.createElement("li");
-        // Desain list riwayat (hijau untuk masuk, merah untuk keluar)
         li.className = `p-3 rounded-lg border-l-4 flex justify-between items-center shadow-sm ${
           isPemasukan ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
         }`;
@@ -154,7 +229,10 @@
         daftarElement.appendChild(li);
       });
 
-      document.getElementById("totalSaldo").textContent = `Rp ${saldo.toLocaleString("id-ID")}`;
+      // Update Angka di Layar
+      document.getElementById("totalSaldo").textContent = `Rp ${saldoUtama.toLocaleString("id-ID")}`;
+      document.getElementById("masukHariIni").textContent = `Rp ${totalMasukHariIni.toLocaleString("id-ID")}`;
+      document.getElementById("keluarHariIni").textContent = `Rp ${totalKeluarHariIni.toLocaleString("id-ID")}`;
     });
   </script>
 </body>
