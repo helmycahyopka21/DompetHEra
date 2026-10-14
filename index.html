@@ -128,14 +128,20 @@
 
     // FIREBASE CONFIGURATION
     const firebaseConfig = {
-      apiKey: "PASTE_API_KEY_ANDA_DI_SINI",
-      authDomain: "PROJECT_ANDA.firebaseapp.com",
-      databaseURL: "https://PROJECT_ANDA-default-rtdb.firebaseio.com",
-      projectId: "PROJECT_ANDA",
-      storageBucket: "PROJECT_ANDA.appspot.com",
-      messagingSenderId: "SENDER_ID_ANDA",
-      appId: "APP_ID_ANDA"
-    };
+    apiKey: "AIzaSyBtrjavkuVRE5NbcsmjAI6sf6kLuvhnA5E",
+    authDomain: "dompet-hera.firebaseapp.com",
+    databaseURL: "https://dompet-hera-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dompet-hera",
+    storageBucket: "dompet-hera.firebasestorage.app",
+    messagingSenderId: "1063143326453",
+    appId: "1:1063143326453:web:5737ebcb9e951bc86ebbbc",
+    measurementId: "G-6VJWCBCMEY"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 
     let dbRef = null;
     let isFirebaseReady = false;
