@@ -52,7 +52,7 @@
         <p id="totalSaldo" class="text-3xl font-extrabold text-white">Rp 0</p>
       </div>
 
-      <!-- GRAFIK KEUSNGAN BULANAN (Tepat di bawah Total Saldo) -->
+      <!-- GRAFIK KEUSNGAN BULANAN -->
       <div class="bg-white border border-blue-100 p-4 rounded-xl shadow-sm">
         <div class="flex justify-between items-center mb-3">
           <h3 class="text-xs font-bold text-blue-900 uppercase tracking-wider">Grafik Arus Kas Bulanan</h3>
@@ -209,13 +209,13 @@
 
       objTanggal.setHours(sekarang.getHours(), sekarang.getMinutes(), sekarang.getSeconds());
 
-      // Format Hari dan Tanggal lengkap (misal: "Kamis, 15 Okt 2026")
-      const opsiHariTanggal = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+      // Format Nama Hari dan Bulan Lengkap (misal: "Kamis, 15 Oktober 2026")
+      const opsiHariTanggal = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       const tanggalFormat = objTanggal.toLocaleDateString("id-ID", opsiHariTanggal);
       const jamFormat = sekarang.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
 
-      // Format kunci bulan (misal: "Okt 2026")
-      const bulanFormat = objTanggal.toLocaleDateString("id-ID", { month: 'short', year: 'numeric' });
+      // Format kunci bulan (misal: "Oktober 2026")
+      const bulanFormat = objTanggal.toLocaleDateString("id-ID", { month: 'long', year: 'numeric' });
 
       const itemBaru = {
         id: Date.now().toString(),
@@ -281,7 +281,7 @@
       let totalKeluarHariIni = 0;
 
       const skrg = new Date();
-      const opsiHariTanggal = { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' };
+      const opsiHariTanggal = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       const todayStr = skrg.toLocaleDateString("id-ID", opsiHariTanggal);
 
       let listItems = [];
@@ -302,11 +302,15 @@
         return;
       }
 
-      // Urutkan transaksi dari timestamp terbaru ke terlama
-      listItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      // URUTKAN TRANSAKSI DARI YANG TERBARU KE TERLAMA (DESCENDING)
+      listItems.sort((a, b) => {
+        let timeA = a.timestamp || (a.id ? parseInt(a.id) : 0);
+        let timeB = b.timestamp || (b.id ? parseInt(b.id) : 0);
+        return timeB - timeA;
+      });
 
       let lastGroupDate = null;
-      let rekapBulanan = {}; // Data penampung untuk grafik
+      let rekapBulanan = {};
 
       listItems.forEach((item) => {
         const isPemasukan = item.jenis === "pemasukan";
@@ -331,7 +335,7 @@
         if (isPemasukan) rekapBulanan[keyBulan].masuk += item.nominal;
         else rekapBulanan[keyBulan].keluar += item.nominal;
 
-        // 4. Pembatas Hari & Tanggal (Tanpa kata Hari Ini/Kemarin)
+        // 4. Pembatas Hari & Tanggal Lengkap
         if (tanggalItem !== lastGroupDate) {
           lastGroupDate = tanggalItem;
           const dividerLi = document.createElement("li");
@@ -348,7 +352,7 @@
           daftarElement.appendChild(dividerLi);
         }
 
-        // 5. Render Transaksi
+        // 5. Render Item Transaksi
         const li = document.createElement("li");
         li.className = `p-3 rounded-lg border-l-4 flex justify-between items-center shadow-sm ${
           isHelmy 
@@ -389,11 +393,11 @@
       document.getElementById("masukHariIni").textContent = `Rp ${totalMasukHariIni.toLocaleString("id-ID")}`;
       document.getElementById("keluarHariIni").textContent = `Rp ${totalKeluarHariIni.toLocaleString("id-ID")}`;
 
-      // Perbarui Grafik
+      // Perbarui Grafik Bulanan
       updateGrafik(rekapBulanan);
     }
 
-    // FUNGSI RENDER GRAFIK KEUSNGAN
+    // FUNGSI RENDER GRAFIK KEUANGAN
     function updateGrafik(rekapBulanan) {
       const labels = Object.keys(rekapBulanan).reverse();
       const dataMasuk = labels.map(key => rekapBulanan[key].masuk);
