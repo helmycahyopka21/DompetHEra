@@ -69,12 +69,12 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="bg-green-50 border border-green-100 p-3 rounded-lg text-center">
             <p class="text-[10px] font-bold text-green-700 uppercase">Total Pemasukan</p>
-            <p class="text-[9px] text-green-600 font-medium">(Bulan Ini)</p>
+            <p id="labelBulanPemasukan" class="text-[9px] text-green-600 font-medium">(Oktober)</p>
             <p id="totalPemasukanBulanIni" class="text-sm font-extrabold text-green-600 mt-1">Rp 0</p>
           </div>
           <div class="bg-red-50 border border-red-100 p-3 rounded-lg text-center">
             <p class="text-[10px] font-bold text-red-700 uppercase">Total Pengeluaran</p>
-            <p class="text-[9px] text-red-600 font-medium">(Bulan Ini)</p>
+            <p id="labelBulanPengeluaran" class="text-[9px] text-red-600 font-medium">(Oktober)</p>
             <p id="keluarBulanIni" class="text-sm font-extrabold text-red-600 mt-1">Rp 0</p>
           </div>
         </div>
@@ -295,6 +295,13 @@
       const opsiHariTanggal = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       const todayStr = skrg.toLocaleDateString("id-ID", opsiHariTanggal);
       const currentMonthStr = skrg.toLocaleDateString("id-ID", { month: 'long', year: 'numeric' });
+      const currentMonthOnlyStr = skrg.toLocaleDateString("id-ID", { month: 'long' });
+
+      // Update label nama bulan secara dinamis
+      const labelPemasukan = document.getElementById("labelBulanPemasukan");
+      const labelPengeluaran = document.getElementById("labelBulanPengeluaran");
+      if (labelPemasukan) labelPemasukan.textContent = `(${currentMonthOnlyStr})`;
+      if (labelPengeluaran) labelPengeluaran.textContent = `(${currentMonthOnlyStr})`;
 
       let listItems = [];
       if (isFirebase && data) {
