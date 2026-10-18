@@ -22,8 +22,11 @@
     </div>
     
     <form id="formLogin" class="space-y-4">
-      <div>
-        <input type="password" id="passwordInput" placeholder="Masukkan PIN / Password" class="w-full border-2 border-blue-100 p-3 rounded-lg text-center font-bold text-blue-900 focus:outline-none focus:border-blue-900" required>
+      <div class="relative">
+        <input type="password" id="passwordInput" placeholder="Masukkan PIN / Password" class="w-full border-2 border-blue-100 p-3 pr-10 rounded-lg text-center font-bold text-blue-900 focus:outline-none focus:border-blue-900" required>
+        <button type="button" onclick="togglePasswordVisibility()" title="Tampilkan / Sembunyikan Password" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-900 text-sm focus:outline-none">
+          👁️
+        </button>
       </div>
       <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3 rounded-lg text-sm hover:bg-blue-950 transition-colors shadow-md">
         BUKA DOMPET
@@ -67,11 +70,16 @@
       <div class="space-y-3">
         <!-- Rekap Bulanan -->
         <div class="grid grid-cols-2 gap-3">
-          <div class="bg-green-50 border border-green-100 p-3 rounded-lg text-center">
-            <p class="text-[10px] font-bold text-green-700 uppercase">Total Pemasukan</p>
+          <!-- Total Pemasukan (Dapat Dipencet) -->
+          <div onclick="bukaModalPemasukan()" class="bg-green-50 border border-green-200 p-3 rounded-lg text-center cursor-pointer hover:bg-green-100/80 transition-all shadow-sm group">
+            <p class="text-[10px] font-bold text-green-700 uppercase flex items-center justify-center gap-1">
+              Total Pemasukan 🔍
+            </p>
             <p id="labelBulanPemasukan" class="text-[9px] text-green-600 font-medium">(Oktober)</p>
             <p id="totalPemasukanBulanIni" class="text-sm font-extrabold text-green-600 mt-1">Rp 0</p>
+            <p class="text-[9px] text-green-700/70 font-semibold mt-1 group-hover:underline">Tekan untuk rincian</p>
           </div>
+          <!-- Total Pengeluaran -->
           <div class="bg-red-50 border border-red-100 p-3 rounded-lg text-center">
             <p class="text-[10px] font-bold text-red-700 uppercase">Total Pengeluaran</p>
             <p id="labelBulanPengeluaran" class="text-[9px] text-red-600 font-medium">(Oktober)</p>
@@ -127,7 +135,7 @@
       <div class="pt-4 border-t border-gray-200">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-sm font-bold text-blue-900 uppercase tracking-wider">Riwayat Transaksi</h2>
-          <span class="text-[10px] text-gray-400">(Tekan ✕ untuk menghapus)</span>
+          <span class="text-[10px] text-gray-400">(✎ Edit | ✕ Hapus)</span>
         </div>
         
         <!-- Legend Warna -->
@@ -149,9 +157,92 @@
     </div>
   </div>
 
+  <!-- ================= MODAL EDIT TRANSAKSI ================= -->
+  <div id="modalEdit" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="text-sm font-bold text-blue-900 uppercase tracking-wider">Edit Transaksi</h3>
+        <button onclick="tutupModalEdit()" class="text-gray-400 hover:text-red-600 font-bold text-lg">✕</button>
+      </div>
+      <form id="formEditTransaksi" class="space-y-3">
+        <input type="hidden" id="editKeyFirebase">
+        <input type="hidden" id="editIdLokal">
+        <div class="flex gap-2">
+          <div class="flex-1">
+            <label class="block text-xs font-bold text-blue-900 uppercase mb-1">Pencatat</label>
+            <select id="editPencatat" class="w-full border-2 border-blue-100 p-2 rounded text-sm bg-blue-50" required>
+              <option value="Helmy">Helmy</option>
+              <option value="Era">Era</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-bold text-blue-900 uppercase mb-1">Jenis</label>
+            <select id="editJenis" class="w-full border-2 border-blue-100 p-2 rounded text-sm bg-blue-50" required>
+              <option value="pengeluaran">Keluar (-)</option>
+              <option value="pemasukan">Masuk (+)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-blue-900 uppercase mb-1">Tanggal Transaksi</label>
+          <input type="date" id="editTanggalInput" class="w-full border-2 border-blue-100 p-2 rounded text-sm bg-blue-50" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-blue-900 uppercase mb-1">Nominal (Rp)</label>
+          <input type="number" id="editNominal" class="w-full border-2 border-blue-100 p-2 rounded text-sm bg-blue-50" required>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-blue-900 uppercase mb-1">Keterangan</label>
+          <input type="text" id="editKeterangan" class="w-full border-2 border-blue-100 p-2 rounded text-sm bg-blue-50" required>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="tutupModalEdit()" class="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Batal</button>
+          <button type="submit" class="flex-1 bg-blue-900 text-white py-2.5 rounded-lg font-bold text-xs uppercase hover:bg-blue-950">Simpan Edit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL RINCIAN PEMASUKAN BULANAN ================= -->
+  <div id="modalPemasukan" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b pb-2">
+        <div>
+          <h3 class="text-sm font-bold text-green-700 uppercase tracking-wider">Sumber Pemasukan</h3>
+          <p id="subjudulBulanPemasukan" class="text-xs text-gray-500 font-medium mt-0.5">(Oktober 2026)</p>
+        </div>
+        <button onclick="tutupModalPemasukan()" class="text-gray-400 hover:text-red-600 font-bold text-lg">✕</button>
+      </div>
+
+      <div class="bg-green-50 border border-green-200 p-3 rounded-lg text-center">
+        <p class="text-[10px] text-green-800 font-bold uppercase">Akumulasi Pemasukan</p>
+        <p id="totalNominalModalPemasukan" class="text-xl font-extrabold text-green-600 mt-0.5">Rp 0</p>
+      </div>
+
+      <ul id="daftarRincianPemasukan" class="space-y-2 max-h-60 overflow-y-auto text-sm pr-1">
+        <li class="text-center text-gray-400 py-4 font-medium">Belum ada transaksi pemasukan</li>
+      </ul>
+
+      <button onclick="tutupModalPemasukan()" class="w-full bg-gray-200 text-gray-700 font-bold py-2.5 rounded-lg text-xs uppercase hover:bg-gray-300">
+        TUTUP
+      </button>
+    </div>
+  </div>
+
   <script>
     const KATA_SANDI_APP = "hera123";
     let chartInstance = null;
+    let globalListItems = [];
+
+    // TAMPILKAN / SEMBUNYIKAN PASSWORD
+    function togglePasswordVisibility() {
+      const inputPass = document.getElementById("passwordInput");
+      if (inputPass.type === "password") {
+        inputPass.type = "text";
+      } else {
+        inputPass.type = "password";
+      }
+    }
 
     // DEFAULT TANGGAL FORM KE HARI INI
     function setTanggalHariIni() {
@@ -204,7 +295,7 @@
       }
     }
 
-    // SIMPAN TRANSAKSI
+    // SIMPAN TRANSAKSI BARU
     document.getElementById("formTransaksi").addEventListener("submit", (e) => {
       e.preventDefault();
       const pencatat = document.getElementById("pencatat").value;
@@ -219,12 +310,9 @@
 
       objTanggal.setHours(sekarang.getHours(), sekarang.getMinutes(), sekarang.getSeconds());
 
-      // Format Nama Hari dan Bulan Lengkap (misal: "Kamis, 15 Oktober 2026")
       const opsiHariTanggal = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       const tanggalFormat = objTanggal.toLocaleDateString("id-ID", opsiHariTanggal);
       const jamFormat = sekarang.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
-
-      // Format kunci bulan (misal: "Oktober 2026")
       const bulanFormat = objTanggal.toLocaleDateString("id-ID", { month: 'long', year: 'numeric' });
 
       const itemBaru = {
@@ -253,10 +341,137 @@
       setTanggalHariIni();
     });
 
+    // LOGIKA MODAL EDIT TRANSAKSI
+    function bukaModalEdit(keyFirebase, idLokal) {
+      let targetItem = null;
+      if (isFirebaseReady && keyFirebase && keyFirebase !== 'null') {
+        targetItem = globalListItems.find(item => item.keyFirebase === keyFirebase);
+      } else {
+        targetItem = globalListItems.find(item => item.id === idLokal);
+      }
+
+      if (!targetItem) return;
+
+      document.getElementById("editKeyFirebase").value = keyFirebase || "";
+      document.getElementById("editIdLokal").value = idLokal || "";
+      document.getElementById("editPencatat").value = targetItem.pencatat || "Helmy";
+      document.getElementById("editJenis").value = targetItem.jenis || "pengeluaran";
+      document.getElementById("editNominal").value = targetItem.nominal || 0;
+      document.getElementById("editKeterangan").value = targetItem.keterangan || "";
+
+      let dateObj = targetItem.timestamp ? new Date(targetItem.timestamp) : new Date();
+      const yyyy = dateObj.getFullYear();
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      document.getElementById("editTanggalInput").value = `${yyyy}-${mm}-${dd}`;
+
+      document.getElementById("modalEdit").classList.remove("hidden");
+    }
+
+    function tutupModalEdit() {
+      document.getElementById("modalEdit").classList.add("hidden");
+    }
+
+    document.getElementById("formEditTransaksi").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const keyFirebase = document.getElementById("editKeyFirebase").value;
+      const idLokal = document.getElementById("editIdLokal").value;
+      const pencatat = document.getElementById("editPencatat").value;
+      const jenis = document.getElementById("editJenis").value;
+      const nominal = parseInt(document.getElementById("editNominal").value);
+      const keterangan = document.getElementById("editKeterangan").value;
+      const tanggalDipilih = document.getElementById("editTanggalInput").value;
+
+      const [tahun, bulan, hari] = tanggalDipilih.split("-");
+      const objTanggal = new Date(tahun, bulan - 1, hari);
+      const sekarang = new Date();
+      objTanggal.setHours(sekarang.getHours(), sekarang.getMinutes(), sekarang.getSeconds());
+
+      const opsiHariTanggal = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      const tanggalFormat = objTanggal.toLocaleDateString("id-ID", opsiHariTanggal);
+      const jamFormat = sekarang.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+      const bulanFormat = objTanggal.toLocaleDateString("id-ID", { month: 'long', year: 'numeric' });
+
+      const dataUpdated = {
+        pencatat: pencatat,
+        jenis: jenis,
+        nominal: nominal,
+        keterangan: keterangan,
+        waktu: `${tanggalFormat}, ${jamFormat}`,
+        tanggalReal: tanggalFormat,
+        bulanTahun: bulanFormat,
+        timestamp: objTanggal.getTime()
+      };
+
+      if (isFirebaseReady && keyFirebase && keyFirebase !== 'null') {
+        dbRef.child(keyFirebase).update(dataUpdated);
+      } else {
+        let lokal = JSON.parse(localStorage.getItem("hera_data") || "[]");
+        lokal = lokal.map(item => item.id === idLokal ? { ...item, ...dataUpdated } : item);
+        localStorage.setItem("hera_data", JSON.stringify(lokal));
+        muatDataLokal();
+      }
+
+      tutupModalEdit();
+    });
+
+    // LOGIKA MODAL RINCIAN PEMASUKAN
+    function bukaModalPemasukan() {
+      const modal = document.getElementById("modalPemasukan");
+      const listEl = document.getElementById("daftarRincianPemasukan");
+      const subjudul = document.getElementById("subjudulBulanPemasukan");
+      const totalEl = document.getElementById("totalNominalModalPemasukan");
+
+      const skrg = new Date();
+      const currentMonthStr = skrg.toLocaleDateString("id-ID", { month: 'long', year: 'numeric' });
+      
+      if (subjudul) subjudul.textContent = `Bulan ${currentMonthStr}`;
+      
+      listEl.innerHTML = "";
+      let totalPemasukan = 0;
+
+      const filteredPemasukan = globalListItems.filter(item => {
+        let itemBulan = item.bulanTahun;
+        if (!itemBulan && item.timestamp) {
+          itemBulan = new Date(item.timestamp).toLocaleDateString("id-ID", { month: 'long', year: 'numeric' });
+        }
+        return item.jenis === "pemasukan" && itemBulan === currentMonthStr;
+      });
+
+      if (filteredPemasukan.length === 0) {
+        listEl.innerHTML = '<li class="text-center text-gray-400 py-4 font-medium">Belum ada transaksi pemasukan bulan ini</li>';
+        totalEl.textContent = "Rp 0";
+      } else {
+        filteredPemasukan.forEach(item => {
+          totalPemasukan += item.nominal;
+          const isHelmy = item.pencatat === "Helmy";
+          const li = document.createElement("li");
+          li.className = "p-3 rounded-lg bg-green-50 border border-green-200 flex justify-between items-center shadow-sm";
+          li.innerHTML = `
+            <div>
+              <p class="font-bold text-gray-800 text-xs">${item.keterangan}</p>
+              <p class="text-[10px] text-gray-500 mt-0.5">
+                <span class="${isHelmy ? 'text-blue-700' : 'text-pink-600'} font-bold">${item.pencatat}</span> • ${item.tanggalReal || item.waktu}
+              </p>
+            </div>
+            <span class="font-extrabold text-green-700 text-xs">+ Rp ${item.nominal.toLocaleString("id-ID")}</span>
+          `;
+          listEl.appendChild(li);
+        });
+        totalEl.textContent = `Rp ${totalPemasukan.toLocaleString("id-ID")}`;
+      }
+
+      modal.classList.remove("hidden");
+    }
+
+    function tutupModalPemasukan() {
+      document.getElementById("modalPemasukan").classList.add("hidden");
+    }
+
     // HAPUS TRANSAKSI
     function hapusTransaksi(keyFirebase, idLokal) {
       if (confirm("Hapus transaksi ini?")) {
-        if (isFirebaseReady && keyFirebase) {
+        if (isFirebaseReady && keyFirebase && keyFirebase !== 'null') {
           dbRef.child(keyFirebase).remove();
         } else {
           let lokal = JSON.parse(localStorage.getItem("hera_data") || "[]");
@@ -267,7 +482,7 @@
       }
     }
 
-    // BACA DATA
+    // BACA DATA REAL-TIME / LOKAL
     if (isFirebaseReady) {
       dbRef.on("value", (snapshot) => {
         const data = snapshot.val();
@@ -297,7 +512,7 @@
       const currentMonthStr = skrg.toLocaleDateString("id-ID", { month: 'long', year: 'numeric' });
       const currentMonthOnlyStr = skrg.toLocaleDateString("id-ID", { month: 'long' });
 
-      // Update label nama bulan secara dinamis
+      // Update label nama bulan
       const labelPemasukan = document.getElementById("labelBulanPemasukan");
       const labelPengeluaran = document.getElementById("labelBulanPengeluaran");
       if (labelPemasukan) labelPemasukan.textContent = `(${currentMonthOnlyStr})`;
@@ -312,6 +527,8 @@
         listItems = [...data];
       }
 
+      globalListItems = listItems;
+
       if (listItems.length === 0) {
         daftarElement.innerHTML = '<li class="text-center text-gray-400 py-4 font-medium">Belum ada transaksi</li>';
         document.getElementById("totalSaldo").textContent = "Rp 0";
@@ -322,7 +539,7 @@
         return;
       }
 
-      // URUTKAN TRANSAKSI DARI YANG TERBARU KE TERLAMA (DESCENDING)
+      // Urutkan transaksi dari yang terbaru ke terlama
       listItems.sort((a, b) => {
         let timeA = a.timestamp || (a.id ? parseInt(a.id) : 0);
         let timeB = b.timestamp || (b.id ? parseInt(b.id) : 0);
@@ -407,11 +624,14 @@
               ${item.waktu}
             </p>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="font-extrabold ${isPemasukan ? "text-green-600" : "text-red-600"}">
+          <div class="flex items-center gap-1.5">
+            <span class="font-extrabold ${isPemasukan ? "text-green-600" : "text-red-600"} mr-1">
               ${isPemasukan ? "+" : "-"} Rp ${item.nominal.toLocaleString("id-ID")}
             </span>
-            <button onclick="hapusTransaksi(${keyParam}, ${idParam})" title="Hapus" class="text-gray-400 hover:text-red-600 font-bold px-2 py-1 text-xs rounded bg-white border border-gray-200">
+            <button onclick="bukaModalEdit(${keyParam}, ${idParam})" title="Edit Transaksi" class="text-blue-600 hover:bg-blue-100 font-bold px-2 py-1 text-xs rounded bg-white border border-gray-200 shadow-xs">
+              ✎
+            </button>
+            <button onclick="hapusTransaksi(${keyParam}, ${idParam})" title="Hapus Transaksi" class="text-red-500 hover:bg-red-100 font-bold px-2 py-1 text-xs rounded bg-white border border-gray-200 shadow-xs">
               ✕
             </button>
           </div>
@@ -419,13 +639,13 @@
         daftarElement.appendChild(li);
       });
 
-      // Update Tampilan Angka Rekap
+      // Update Angka Rekap
       document.getElementById("totalSaldo").textContent = `Rp ${saldoUtama.toLocaleString("id-ID")}`;
       document.getElementById("totalPemasukanBulanIni").textContent = `Rp ${totalPemasukanBulanIni.toLocaleString("id-ID")}`;
       document.getElementById("keluarBulanIni").textContent = `Rp ${totalKeluarBulanIni.toLocaleString("id-ID")}`;
       document.getElementById("keluarHariIni").textContent = `Rp ${totalKeluarHariIni.toLocaleString("id-ID")}`;
 
-      // Perbarui Grafik Bulanan
+      // Perbarui Grafik
       updateGrafik(rekapBulanan);
     }
 
